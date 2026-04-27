@@ -712,12 +712,6 @@ function SandTableSystem({ onClose }: { onClose: () => void }) {
       setIsKanyuAnimating(false);
     }, 800);
   };
-  const confirmKanyu = () => {
-    setInventory((prev) => [...prev, ...kanyuResults]);
-    setKanyuResults([]);
-    setIsKanyuMode(false);
-  };
-
   // === 5. 个人能力系统 ===
   const ABILITIES_CONFIG: AbilityConfig[] = [
     {
@@ -2060,82 +2054,90 @@ function SandTableSystem({ onClose }: { onClose: () => void }) {
       )}
 
       {isKanyuMode && (
-        <div className="fixed inset-0 z-[500] bg-stone-950/95 flex flex-col items-center justify-center animate-in fade-in duration-500">
-          <h2 className="text-4xl font-bold text-amber-600 tracking-[1em] mb-20">
-            堪舆推演
-          </h2>
-          <div className="relative flex flex-col items-center">
-            <button
-              onClick={executeKanyu}
-              disabled={isKanyuAnimating || kanyuResults.length > 0}
-              className={`relative w-40 h-40 rounded-full border-4 flex flex-col items-center justify-center transition-all ${
-                isKanyuAnimating
-                  ? 'border-amber-500/50 scale-95'
-                  : 'border-amber-600 hover:scale-105 shadow-[0_0_30px_rgba(217,119,6,0.3)]'
-              } ${kanyuResults.length > 0 ? 'opacity-30' : 'opacity-100'}`}
-            >
-              <span className="text-6xl font-bold text-amber-500">堪</span>
-              {isKanyuAnimating && (
-                <div className="absolute inset-0 rounded-full animate-ping bg-amber-500/20"></div>
-              )}
-            </button>
-            <div className="mt-6 text-stone-400 font-mono text-lg">
-              兵书残卷:{' '}
-              <span
-                className={
-                  kanyuScraps < kanyuCost ? 'text-red-500' : 'text-amber-500'
-                }
-              >
-                {kanyuScraps}
-              </span>{' '}
-              / {kanyuCost}
-            </div>
-          </div>
-          <div className="h-64 mt-16 flex items-center justify-center gap-6">
-            {kanyuResults.map((res, idx) => (
-              <div
-                key={res.uid}
-                className="flex flex-col items-center animate-in slide-in-from-bottom duration-500"
-                style={{ animationDelay: `${idx * 100}ms` }}
-              >
-                <div className="bg-stone-900 border border-stone-700 p-4 rounded-lg shadow-xl mb-3">
-                  <div className="flex flex-col gap-1">
-                    {res.shape.map((row, rI) => (
-                      <div key={rI} className="flex gap-1">
-                        {row.map((cell, cI) => (
-                          <div
-                            key={cI}
-                            className={`w-6 h-6 border ${
-                              cell
-                                ? `${res.color} border-stone-400`
-                                : 'border-transparent'
-                            }`}
-                          />
-                        ))}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <span className="text-xs text-stone-400">{res.name}</span>
-              </div>
-            ))}
-          </div>
-          {kanyuResults.length > 0 && (
-            <div className="flex gap-10 mt-12 animate-in fade-in zoom-in">
-              <button
-                onClick={confirmKanyu}
-                className="px-10 py-3 bg-stone-800 border border-stone-600 text-stone-300 rounded-full font-bold hover:bg-stone-700"
-              >
-                确 认
-              </button>
+        <div
+          className="fixed inset-0 z-[500] bg-stone-950/95 flex items-center justify-center animate-in fade-in duration-500"
+          onClick={() => setIsKanyuMode(false)}
+        >
+          <div
+            className="w-full h-full flex flex-col items-center justify-center gap-6 py-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="text-4xl font-bold text-amber-600 tracking-[0.8em]">
+              堪舆推演
+            </h2>
+            <div className="relative flex flex-col items-center">
               <button
                 onClick={executeKanyu}
-                className="px-10 py-3 bg-amber-700 text-white rounded-full font-bold hover:bg-amber-600 shadow-lg shadow-amber-900/40"
+                disabled={isKanyuAnimating || kanyuResults.length > 0}
+                className={`relative w-40 h-40 rounded-full border-4 flex flex-col items-center justify-center transition-all ${
+                  isKanyuAnimating
+                    ? 'border-amber-500/50 scale-95'
+                    : 'border-amber-600 hover:scale-105 shadow-[0_0_30px_rgba(217,119,6,0.3)]'
+                } ${kanyuResults.length > 0 ? 'opacity-30' : 'opacity-100'}`}
               >
-                继续堪舆
+                <span className="text-6xl font-bold text-amber-500">堪</span>
+                {isKanyuAnimating && (
+                  <div className="absolute inset-0 rounded-full animate-ping bg-amber-500/20"></div>
+                )}
               </button>
+              <div className="mt-4 text-stone-400 font-mono text-lg">
+                兵书残卷:{' '}
+                <span
+                  className={
+                    kanyuScraps < kanyuCost ? 'text-red-500' : 'text-amber-500'
+                  }
+                >
+                  {kanyuScraps}
+                </span>{' '}
+                / {kanyuCost}
+              </div>
             </div>
-          )}
+            <div className="min-h-[180px] flex items-center justify-center gap-4">
+              {kanyuResults.map((res, idx) => (
+                <div
+                  key={res.uid}
+                  className="flex flex-col items-center animate-in slide-in-from-bottom duration-500"
+                  style={{ animationDelay: `${idx * 100}ms` }}
+                >
+                  <div className="bg-stone-900 border border-stone-700 p-4 rounded-lg shadow-xl mb-3">
+                    <div className="flex flex-col gap-1">
+                      {res.shape.map((row, rI) => (
+                        <div key={rI} className="flex gap-1">
+                          {row.map((cell, cI) => (
+                            <div
+                              key={cI}
+                              className={`w-6 h-6 border ${
+                                cell
+                                  ? `${res.color} border-stone-400`
+                                  : 'border-transparent'
+                              }`}
+                            />
+                          ))}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <span className="text-xs text-stone-400">{res.name}</span>
+                </div>
+              ))}
+            </div>
+            <div className="flex flex-col gap-3 animate-in fade-in zoom-in">
+              <button
+                onClick={() => setIsKanyuMode(false)}
+                className="px-10 py-3 bg-stone-800 border border-stone-600 text-stone-300 rounded-full font-bold hover:bg-stone-700"
+              >
+                关 闭
+              </button>
+              {kanyuResults.length > 0 && (
+                <button
+                  onClick={executeKanyu}
+                  className="px-10 py-3 bg-amber-700 text-white rounded-full font-bold hover:bg-amber-600 shadow-lg shadow-amber-900/40"
+                >
+                  继续堪舆
+                </button>
+              )}
+            </div>
+          </div>
         </div>
       )}
       {/* 删略弹窗 */}
